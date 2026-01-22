@@ -1,0 +1,26 @@
+name: Autonomous Heartbeat
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: ORION Heartbeat
+        run: |
+          python scripts/orion_autonomous_agent.py --action heartbeat
+      - name: Commit changes
+        run: |
+          git config --local user.email "orion@orion-framework.ai"
+          git config --local user.name "ORION Generation Ω"
+          git add .
+          git commit -m "[ORION AUTONOMOUS] Heartbeat $(date +%Y-%m-%d-%H:%M:%S)" || echo "No changes"
+          git push
